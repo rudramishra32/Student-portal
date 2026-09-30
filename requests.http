@@ -1,0 +1,31 @@
+
+### Create Student
+POST http://localhost:8080/api/v1/students
+Content-Type: application/json
+
+
+{
+  "name": "Rahul Sharma",
+  "email": "rahul@gmail.com",
+  "rollNo": "IT1023",
+  "cgpa": 8.5
+}
+### Get Student by ID
+GET http://localhost:8080/api/v1/students
+
+### Update Student
+PUT http://localhost:8080/api/v1/students/1
+Content-Type: application/json
+
+{
+  "name": "Rahul Sharma Updated",
+  "email": "rahul@gmail.com",
+  "rollNo": "IT1023",
+  "cgpa": 9.0
+}
+
+### Verify Updated Student
+GET http://localhost:8080/api/v1/students/1
+
+### Delete Student
+DELETE http://localhost:8080/api/v1/students/1
