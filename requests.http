@@ -1,31 +1,100 @@
+### Create Department IT
+POST http://localhost:8080/api/v1/departments
+Content-Type: application/json
 
-### Create Student
+{
+  "name": "Information Technology",
+  "code": "IT"
+}
+
+###
+
+### Create Department CSE
+POST http://localhost:8080/api/v1/departments
+Content-Type: application/json
+
+{
+  "name": "Computer Science",
+  "code": "CSE"
+}
+
+###
+
+### List departments (note their ids)
+GET http://localhost:8080/api/v1/departments
+
+###
+
+### Create Student 1 (with department id 1)
 POST http://localhost:8080/api/v1/students
 Content-Type: application/json
 
+{
+  "name": "Rudra Mishra",
+  "email": "rudra@gmail.com",
+  "rollNo": "IT102",
+  "cgpa": 8.0,
+  "department": { "id": 1 }
+}
+
+###
+
+### Create Student 2 (with department id 1)
+POST http://localhost:8080/api/v1/students
+Content-Type: application/json
 
 {
-  "name": "Rahul Sharma",
-  "email": "rahul@gmail.com",
-  "rollNo": "IT1023",
-  "cgpa": 8.5
+  "name": "Priya Singh",
+  "email": "priya@gmail.com",
+  "rollNo": "IT103",
+  "cgpa": 8.5,
+  "department": { "id": 1 }
 }
-### Get Student by ID
+
+###
+
+### Create Student 3 (with department id 2)
+POST http://localhost:8080/api/v1/students
+Content-Type: application/json
+
+{
+  "name": "Amit Kumar",
+  "email": "amit@gmail.com",
+  "rollNo": "CS104",
+  "cgpa": 7.9,
+  "department": { "id": 2 }
+}
+
+###
+
+### List all students
 GET http://localhost:8080/api/v1/students
 
-### Update Student
+###
+
+### Get Student by ID
+GET http://localhost:8080/api/v1/students/1
+
+###
+
+### Update Student (allot / change department)
 PUT http://localhost:8080/api/v1/students/1
 Content-Type: application/json
 
 {
-  "name": "Rahul Sharma Updated",
-  "email": "rahul@gmail.com",
-  "rollNo": "IT1023",
-  "cgpa": 9.0
+  "name": "Rudra Mishra",
+  "email": "rudra@gmail.com",
+  "rollNo": "IT102",
+  "cgpa": 9.0,
+  "department": { "id": 2 }
 }
+
+###
 
 ### Verify Updated Student
 GET http://localhost:8080/api/v1/students/1
+
+###
 
 ### Delete Student
 DELETE http://localhost:8080/api/v1/students/1
