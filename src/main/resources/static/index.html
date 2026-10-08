@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Student Portal</title>
+    <style>
+        :root { color-scheme: light; font-family: "Segoe UI", Arial, sans-serif; color: #172033; background: #f4f7fb; }
+        * { box-sizing: border-box; }
+        body { margin: 0; }
+        header { background: #173b70; color: white; padding: 26px max(24px, calc((100% - 1080px) / 2)); }
+        header h1 { margin: 0 0 6px; font-size: 25px; }
+        header p { margin: 0; color: #d8e5f6; }
+        main { max-width: 1080px; margin: 28px auto; padding: 0 20px 36px; }
+        .toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
+        #status { color: #53627a; font-size: 14px; }
+        button { border: 0; border-radius: 7px; background: #2459a6; color: white; padding: 10px 16px; font-size: 14px; cursor: pointer; }
+        button:hover { background: #194784; }
+        .panel { background: white; border: 1px solid #e1e7f0; border-radius: 10px; margin: 16px 0; overflow: hidden; box-shadow: 0 3px 12px #1e35550b; }
+        .panel h2 { font-size: 18px; margin: 0; padding: 17px 18px; border-bottom: 1px solid #e8edf4; }
+        .table-wrap { overflow-x: auto; }
+        table { border-collapse: collapse; width: 100%; min-width: 650px; text-align: left; }
+        th, td { padding: 12px 18px; border-bottom: 1px solid #edf0f5; font-size: 14px; }
+        th { color: #53627a; font-weight: 600; background: #fafbfd; }
+        tbody tr:last-child td { border-bottom: 0; }
+        .empty { color: #69768b; text-align: center; padding: 20px; }
+        .note { color: #647188; font-size: 13px; line-height: 1.5; }
+        @media (max-width: 600px) { header { padding: 22px 20px; } main { margin-top: 18px; } .toolbar { align-items: flex-start; flex-direction: column; } }
+    </style>
+</head>
+<body>
+<header>
+    <h1>Student Portal</h1>
+    <p>Students and departments</p>
+</header>
+<main>
+    <div class="toolbar">
+        <span id="status" role="status">Loading data…</span>
+        <button id="refresh" type="button">Refresh tables</button>
+    </div>
+
+    <section class="panel" aria-labelledby="students-heading">
+        <h2 id="students-heading">Students</h2>
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Roll number</th><th>CGPA</th><th>Department</th></tr></thead>
+                <tbody id="students"><tr><td class="empty" colspan="6">Loading…</td></tr></tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="panel" aria-labelledby="departments-heading">
+        <h2 id="departments-heading">Departments</h2>
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>ID</th><th>Name</th><th>Code</th></tr></thead>
+                <tbody id="departments"><tr><td class="empty" colspan="3">Loading…</td></tr></tbody>
+            </table>
+        </div>
+    </section>
+    <p class="note">These tables show records returned by the REST API. Use the requests in <code>requests.http</code> to add sample records, then refresh this page.</p>
+</main>
+<script>
+    function addCell(row, value) {
+        const cell = document.createElement('td');
+        cell.textContent = value == null || value === '' ? '—' : value;
+        row.appendChild(cell);
+    }
+
+    function showEmpty(body, columns, message) {
+        body.replaceChildren();
+        const row = document.createElement('tr');
+        const cell = document.createElement('td');
+        cell.className = 'empty';
+        cell.colSpan = columns;
+        cell.textContent = message;
+        row.appendChild(cell);
+        body.appendChild(row);
+    }
+
+    async function loadTable(url, bodyId, columns, drawRow) {
+        const body = document.getElementById(bodyId);
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Request failed: ' + url + ' (' + response.status + ')');
+        const records = await response.json();
+        body.replaceChildren();
+        if (!records.length) {
+            showEmpty(body, columns, 'No records yet. Add records with the API, then refresh.');
+            return;
+        }
+        records.forEach(record => {
+            const row = document.createElement('tr');
+            drawRow(row, record);
+            body.appendChild(row);
+        });
+    }
+
+    async function refreshTables() {
+        const status = document.getElementById('status');
+        status.textContent = 'Loading data…';
+        try {
+            await Promise.all([
+                loadTable('/api/v1/students', 'students', 6, (row, student) => {
+                    addCell(row, student.id);
+                    addCell(row, student.name);
+                    addCell(row, student.email);
+                    addCell(row, student.rollNo);
+                    addCell(row, student.cgpa);
+                    addCell(row, student.department && student.department.name);
+                }),
+                loadTable('/api/v1/departments', 'departments', 3, (row, department) => {
+                    addCell(row, department.id);
+                    addCell(row, department.name);
+                    addCell(row, department.code);
+                })
+            ]);
+            status.textContent = 'Tables updated.';
+        } catch (error) {
+            status.textContent = 'Could not load data. Make sure the Spring Boot app is running.';
+            console.error(error);
+        }
+    }
+
+    document.getElementById('refresh').addEventListener('click', refreshTables);
+    refreshTables();
+</script>
+</body>
+</html>
